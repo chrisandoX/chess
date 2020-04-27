@@ -74,7 +74,7 @@ export default class ChessboardController {
     const chessCellId = this.chessboard.cellToCellId(cell);
     const chessPiece = this.chessboard.getChessPieceByCellId(chessCellId);
 
-    if (this.isSelected() && !chessPiece) {
+    if (this.isSelected() && this.legalMoves.has("".concat(...chessCellId))) {
       this.chessboard.moveChessPiece(this.selectedChessPiece, chessCellId);
     }
 
