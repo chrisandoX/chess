@@ -152,6 +152,11 @@ export default class ChessboardController {
     let checkMoves = Object.assign([], chessPiece.moves);
     let nextMove = [0, 0];
     const legalMovements = new Map();
+
+    // current position is also legal TODO decide if onece the chessPiece is pressed it must be moved.
+    // In real rules, you can't touch the chessPiece and change your mind and not move it.?
+    legalMovements.set("".concat(chessPiece.x, chessPiece.y), 1);
+
     while (checkMoves.length > 0) {
       let moveTo = checkMoves.pop();
       for (let i = 0; i < moveTo.length; i++) {
