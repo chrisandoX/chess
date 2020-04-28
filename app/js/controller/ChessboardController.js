@@ -149,7 +149,20 @@ export default class ChessboardController {
       chessPiece.y,
     ]);
 
-    let checkMoves = Object.assign([], chessPiece.moves);
+    let checkMoves;
+    if (
+      (chessPiece.name === "Pawn" &&
+        chessPiece.player === "White" &&
+        chessPiece.y != "2") ||
+      (chessPiece.name === "Pawn" &&
+        chessPiece.player === "Black" &&
+        chessPiece.y != "7")
+    ) {
+      checkMoves = Object.assign([], [chessPiece.moves[0]]);
+    } else {
+      checkMoves = Object.assign([], chessPiece.moves);
+    }
+
     let nextMove = [0, 0];
     const legalMovements = new Map();
 
