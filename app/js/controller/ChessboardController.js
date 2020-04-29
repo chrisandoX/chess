@@ -75,6 +75,14 @@ export default class ChessboardController {
     const chessPiece = this.chessboard.getChessPieceByCellId(chessCellId);
 
     if (this.isSelected() && this.legalMoves.has("".concat(...chessCellId))) {
+      // if this cell is already occupied it must be the oponents piece
+      // so we need to delete it.
+      if (chessPiece !== undefined && chessPiece !== this.selectedChessPiece) {
+        this.chessboard.removeChessPiece(chessPiece);
+        this.chessboard.moveChessPiece(this.selectedChessPiece, chessCellId);
+        this.deselectChessPiece(this.selectedChessPiece);
+        return;
+      }
       this.chessboard.moveChessPiece(this.selectedChessPiece, chessCellId);
     }
 
@@ -187,6 +195,14 @@ export default class ChessboardController {
 
         // Already occupied cell
         if (this.chessboard.chessPieces.has("".concat(...cellId))) {
+          // get what piece does occupy this cell
+          const occupiedChessPiece = this.chessboard.getChessPieceByCellId(
+            cellId
+          );
+          if (chessPiece.player !== occupiedChessPiece.player) {
+            // The occupied cell is the oponents cell, so we can attack.
+            legalMovements.set("".concat(...cellId), 1);
+          }
           break;
         }
 
