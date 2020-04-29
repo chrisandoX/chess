@@ -13,8 +13,7 @@ export default class ChessboardController {
     this.chessboardViewMediator = chessboardViewMediator;
     this.view = new MainView(this, chessboard);
     this.view.initialize();
-
-    this.selectedChessPiece = false;
+    this.legalMoves = new Map();
   }
 
   //   addVoxelPointer() {
@@ -75,7 +74,7 @@ export default class ChessboardController {
     const chessCellId = this.chessboard.cellToCellId(cell);
     const chessPiece = this.chessboard.getChessPieceByCellId(chessCellId);
 
-    if (this.isSelected() && !chessPiece) {
+    if (this.isSelected() && this.legalMoves.has("".concat(...chessCellId))) {
       this.chessboard.moveChessPiece(this.selectedChessPiece, chessCellId);
     }
 
@@ -123,8 +122,9 @@ export default class ChessboardController {
 
   selectChessPiece(chessPiece) {
     if (chessPiece && !this.selectedChessPiece) {
-      this.chessboard.selectChessPiece(chessPiece);
       this.selectedChessPiece = chessPiece;
+      this.legalMoves = this.getLegalMovements(this.chessboard, chessPiece);
+      this.chessboard.selectChessPiece(chessPiece, this.legalMoves);
     }
   }
 
@@ -137,9 +137,63 @@ export default class ChessboardController {
 
   deselectChessPiece(chessPiece) {
     if (chessPiece && chessPiece.selected) {
-      this.chessboard.deselectChessPiece(chessPiece);
+      this.chessboard.deselectChessPiece(chessPiece, this.legalMoves);
       this.selectedChessPiece = false;
     }
+  }
+
+  getLegalMovements(chessboard, chessPiece) {
+    const startPosition = this.chessboard.cellFromCellId([
+      chessPiece.x,
+      chessPiece.y,
+    ]);
+
+    let checkMoves;
+    if (
+      (chessPiece.name === "Pawn" &&
+        chessPiece.player === "White" &&
+        chessPiece.y != "2") ||
+      (chessPiece.name === "Pawn" &&
+        chessPiece.player === "Black" &&
+        chessPiece.y != "7")
+    ) {
+      checkMoves = Object.assign([], [chessPiece.moves[0]]);
+    } else {
+      checkMoves = Object.assign([], chessPiece.moves);
+    }
+
+    let nextMove = [0, 0];
+    const legalMovements = new Map();
+
+    // current position is also legal TODO decide if onece the chessPiece is pressed it must be moved.
+    // In real rules, you can't touch the chessPiece and change your mind and not move it.?
+    legalMovements.set("".concat(chessPiece.x, chessPiece.y), 1);
+
+    while (checkMoves.length > 0) {
+      let moveTo = checkMoves.pop();
+      for (let i = 0; i < moveTo.length; i++) {
+        nextMove[0] = moveTo[i][0] + startPosition[0];
+        nextMove[1] = moveTo[i][1] + startPosition[1];
+        let cellId = this.chessboard.cellToCellId(nextMove);
+        // Out of chessboard bounds
+        if (
+          nextMove[0] > 7 ||
+          nextMove[0] < 0 ||
+          nextMove[1] > 7 ||
+          nextMove[1] < 0
+        ) {
+          break;
+        }
+
+        // Already occupied cell
+        if (this.chessboard.chessPieces.has("".concat(...cellId))) {
+          break;
+        }
+
+        legalMovements.set("".concat(...cellId), 1);
+      }
+    }
+    return legalMovements;
   }
   // this.executeCommand(
   //   new AddVoxelCommand(
