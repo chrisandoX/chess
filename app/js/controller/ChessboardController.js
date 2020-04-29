@@ -122,10 +122,9 @@ export default class ChessboardController {
 
   selectChessPiece(chessPiece) {
     if (chessPiece && !this.selectedChessPiece) {
-      this.chessboard.selectChessPiece(chessPiece);
       this.selectedChessPiece = chessPiece;
       this.legalMoves = this.getLegalMovements(this.chessboard, chessPiece);
-      console.log(this.legalMoves);
+      this.chessboard.selectChessPiece(chessPiece, this.legalMoves);
     }
   }
 
@@ -138,7 +137,7 @@ export default class ChessboardController {
 
   deselectChessPiece(chessPiece) {
     if (chessPiece && chessPiece.selected) {
-      this.chessboard.deselectChessPiece(chessPiece);
+      this.chessboard.deselectChessPiece(chessPiece, this.legalMoves);
       this.selectedChessPiece = false;
     }
   }

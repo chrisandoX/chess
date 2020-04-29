@@ -1,5 +1,7 @@
 import ViewMediator from "./ViewMediator";
 import ViewMediatorFactory from "../ViewMediatorFactory";
+import GridCellViewMediator from "../mediator/GridCellViewMediator";
+import GridCell from "../../model/GridCell";
 
 export default class ChessboardViewMediator extends ViewMediator {
   constructor(chessboard) {
@@ -11,8 +13,8 @@ export default class ChessboardViewMediator extends ViewMediator {
       this.onChessPieceRemoved(e)
     );
     chessboard.addObserver("ChessPieceMoved", (e) => this.onChessPieceMoved(e));
-    chessboard.addObserver("ChessPieceSelected", (e) =>
-      this.onChessPieceSelected(e)
+    chessboard.addObserver("ChessPieceSelected", (chessPiece, legalMoves) =>
+      this.onChessPieceSelected(chessPiece, legalMoves)
     );
     chessboard.addObserver("ChessPieceDeselected", (e) =>
       this.onChessPieceDeselected(e)
@@ -27,21 +29,34 @@ export default class ChessboardViewMediator extends ViewMediator {
 
     this.object3D.add(this.plane);
     this.objects.push(this.plane);
+
+    this.initializeGrid();
   }
 
   onChessPieceSelected(e) {
     const chessPiece = e.chessPiece;
+    const legalMoves = e.legalMoves;
     const mediator = this.childMediators.get(chessPiece);
     if (mediator) {
       mediator.object3D.material.color.set("yellow");
     }
+    this.highlightLegalMoves(legalMoves, 0.3);
   }
 
   onChessPieceDeselected(e) {
     const chessPiece = e.chessPiece;
+    const legalMoves = e.legalMoves;
     const mediator = this.childMediators.get(chessPiece);
     if (mediator) {
       mediator.object3D.material.color.set(chessPiece.player.toLowerCase());
+    }
+    this.highlightLegalMoves(legalMoves, 0.0);
+  }
+
+  highlightLegalMoves(legalMoves, opacity) {
+    for (const [key, value] of legalMoves.entries()) {
+      const cellMediator = this.childMediators.get(key);
+      cellMediator.object3D.material.opacity = opacity;
     }
   }
 
@@ -154,5 +169,21 @@ export default class ChessboardViewMediator extends ViewMediator {
     );
 
     return plane;
+  }
+
+  initializeGrid() {
+    const x = ["A", "B", "C", "D", "E", "F", "G", "H"];
+    const y = ["1", "2", "3", "4", "5", "6", "7", "8"];
+
+    x.forEach((x_el) => {
+      y.forEach((y_el) => {
+        let gridCell = new GridCell(x_el + y_el, x_el, y_el, "blue");
+        gridCell.size = this.model.cellSize;
+        const mediator = new GridCellViewMediator(gridCell);
+        this.childMediators.set(x_el + y_el, mediator);
+        this.setChessPiecePosition(gridCell, mediator);
+        this.object3D.add(mediator.object3D);
+      });
+    });
   }
 }

@@ -29,14 +29,14 @@ class Chessboard extends Observable {
     this.emit("ChessPieceRemoved", { chessPiece });
   }
 
-  selectChessPiece(chessPiece) {
+  selectChessPiece(chessPiece, legalMoves) {
     chessPiece.selected = true;
-    this.emit("ChessPieceSelected", { chessPiece });
+    this.emit("ChessPieceSelected", { chessPiece, legalMoves });
   }
 
-  deselectChessPiece(chessPiece) {
+  deselectChessPiece(chessPiece, legalMoves) {
     chessPiece.selected = false;
-    this.emit("ChessPieceDeselected", { chessPiece });
+    this.emit("ChessPieceDeselected", { chessPiece, legalMoves });
   }
 
   getChessPieceByCellId(cellId) {
