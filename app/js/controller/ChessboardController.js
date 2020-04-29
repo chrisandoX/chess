@@ -14,6 +14,7 @@ export default class ChessboardController {
     this.view = new MainView(this, chessboard);
     this.view.initialize();
     this.legalMoves = new Map();
+    this.selectedChessPiece = false;
   }
 
   //   addVoxelPointer() {
