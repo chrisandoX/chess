@@ -17,7 +17,7 @@ npm install
 Run server
 
 ```
-node run server
+npm run server
 ```
 
 ## Access app
